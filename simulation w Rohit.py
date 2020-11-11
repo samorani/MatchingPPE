@@ -53,10 +53,36 @@ def dummy_strategy(date,curdon,currec,curdistance_mat):
             result.loc[len(result)] = [don.don_id,rec.rec_id,ppe,qty]
     return result
 
+# proximity match strategy
+def proximity_match_strategy(date,curdon,currec,curdistance_mat):
+    result = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
+    ppes_to_consider = set(curdon.ppe.unique())
+    ppes_to_consider = ppes_to_consider.intersection(set(currec.ppe.unique()))
+
+    for ppe in ppes_to_consider:
+        donors_ppe = curdon[curdon.ppe == ppe]
+        recipients_ppe = currec[currec.ppe == ppe]
+
+        for _, drow in donors_ppe.iterrows():
+            # find the closest recipient to drow.don_id
+            dr = curdistance_mat[(curdistance_mat.don_id == drow.don_id)].merge(recipients_ppe,on='rec_id').sort_values('distance').iloc[0]
+            dqty = drow.qty # donor's qty
+            rqty = recipients_ppe.loc[recipients_ppe.rec_id == dr.rec_id,'qty'].values[0] #recipient's qty
+            qty = min(dqty,rqty) #qty to ship
+            if qty == 0:
+                print('qty is zero')
+            if qty == rqty:
+                recipients_ppe = recipients_ppe[recipients_ppe.rec_id !=  dr.rec_id] # remove recipient
+            else:
+                recipients_ppe.loc[recipients_ppe.rec_id == dr.rec_id,'qty'] -= qty #update recipient's qty
+            result.loc[len(result),:] = [dr.don_id, dr.rec_id,ppe,qty]
+
+    return result
+
 # run analysis 
 # # set parameters here
 interval = 7
-strategy = dummy_strategy
+strategy = proximity_match_strategy
 max_donation_qty = 1000
 # end set parameters
 
@@ -89,18 +115,13 @@ while d2 < max_date:
 
 
     # for each date, write the current pending requests
-    dir = f'output/{d2.date()}' 
-    
-    if writeFiles and not os.path.exists(dir):
-        os.mkdir(dir)
-        agg_cur_recipients.to_csv(dir+'/recipients.csv')
-        agg_cur_donors.to_csv(dir+'/donors.csv')
 
     if len(agg_cur_recipients) == 0 or len(agg_cur_donors) == 0:
         continue 
 
     cur_distance_mat = agg_cur_donors.merge(agg_cur_recipients,on='ppe').merge(distance_mat,on=['don_id','rec_id'])[['don_id','rec_id','distance']]
 
+    dir = f'output/{d2.date()}' 
     if writeFiles:
         if not os.path.exists(dir):
             os.mkdir(dir)
@@ -111,7 +132,7 @@ while d2 < max_date:
     decisions = strategy(d2,agg_cur_donors,agg_cur_recipients,cur_distance_mat)
     decisions['date'] = d2
     decisions['distance'] = decisions.merge(cur_distance_mat)['distance']
-
+    
     # The dataframe of decisions contains the shipping decisions 
     # example
     #    don_id rec_id          ppe   qty                      date     distance
