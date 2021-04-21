@@ -1,14 +1,13 @@
-from testpymatch import simulation as sm
-
+import ppematch as pp
 
 # Initiate the simuation framework
-s = sm.Simulation()
+delta = 7
+donor_waste = True
+R,D,X = pp.simulate(pp.dummy_strategy,delta,donor_waste,True,True)
 
-# Set debug as True to monitor logs
-s.debug(True)
-
-# Run the simulation
-s.run()
-
-# Check outputs
-s.get_decision() # Pandas dataframe that can be stored
+print(R.head())
+print("===========")
+print(D.head())
+print("===========")
+print(X.head())
+print("===========")
