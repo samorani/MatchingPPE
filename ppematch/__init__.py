@@ -3,3 +3,7 @@ from ppematch.simulation import (
     proximity_match_strategy,
     simulate
 )
+
+from ppematch.metrics import (
+    compute_metrics
+)

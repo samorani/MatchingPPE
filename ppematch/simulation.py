@@ -43,6 +43,9 @@ def proximity_match_strategy(date,curdon,currec,curdistance_mat):
         recipients_ppe = currec[currec.ppe == ppe]
 
         for _, drow in donors_ppe.iterrows():
+            if len(recipients_ppe) == 0:
+                break # if we don't have any more recipient with this ppe, consider the next ppe
+            
             # find the closest recipient to drow.don_id
             dr = curdistance_mat[(curdistance_mat.don_id == drow.don_id)].merge(recipients_ppe,on='rec_id').sort_values('distance').iloc[0]
             dqty = drow.qty # donor's qty
@@ -102,13 +105,13 @@ def simulate(ppe_strategy,delta,donor_waste,debug = False,writeFiles = False):
 
         # aggregate cur_donors and cur_recipients:
         # these tables could have multiple rows for each donor (or recipient) for the same ppe. We need to create new dataframes with one row for each donor_id (or recipient_id) and ppe. We will pass these tables to the method strategy below
-        agg_cur_donors = cur_donors.groupby(['don_id','ppe']).agg({'date':'max','qty':'sum'}).reset_index()
-        agg_cur_recipients = cur_recipients.groupby(['rec_id','ppe']).agg({'date':'max','qty':'sum'}).reset_index()
+        agg_cur_donors = cur_donors.groupby(['don_id','ppe']).agg({'date':'min','qty':'sum'}).reset_index()
+        agg_cur_recipients = cur_recipients.groupby(['rec_id','ppe']).agg({'date':'min','qty':'sum'}).reset_index()
 
-        if (len(agg_cur_donors) != len(cur_donors) and debug):
-            print('agg_cur_donors and cur_donors have different lengths')
-        if (len(agg_cur_recipients) != len(cur_recipients) and debug):
-            print('agg_cur_recipients and cur_recipients have different lengths')
+        # if (len(agg_cur_donors) != len(cur_donors) and debug):
+        #     print('agg_cur_donors and cur_donors have different lengths')
+        # if (len(agg_cur_recipients) != len(cur_recipients) and debug):
+        #     print('agg_cur_recipients and cur_recipients have different lengths')
 
 
         # for each date, write the current pending requests
