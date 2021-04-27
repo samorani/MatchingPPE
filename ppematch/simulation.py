@@ -62,17 +62,20 @@ def proximity_match_strategy(date,curdon,currec,curdistance_mat):
     return result
 
 
-def simulate(ppe_strategy,delta,donor_waste,debug = False,writeFiles = False):
+def simulate(ppe_strategy,delta,donor_waste,donors_file = 'data/anon_donors.csv', recipients_file = 'data/anon_recipients.csv',
+    distance_file = "data/anon_distance_matrix.p", debug = False,writeFiles = False):
         
     # load files
-    all_donors = pd.read_csv('data/anon_donors.csv',parse_dates=['date'],index_col=0)
-    all_recipients = pd.read_csv('data/anon_recipients.csv',parse_dates=['date'],index_col=0)
-    distance_mat = pickle.load( open( "data/anon_distance_matrix.p", "rb" ) )
+    all_donors = pd.read_csv(donors_file,parse_dates=['date'],index_col=0)
+    all_recipients = pd.read_csv(recipients_file,parse_dates=['date'],index_col=0)
+    try:
+        distance_mat = pd.read_csv(distance_file,index_col=0)
+    except:
+        try:
+            distance_mat = pickle.load( open(distance_file, "rb" ) )
+        except:
+            raise(f'Cannot load distance matrix {distance_file}')
 
-    # reshape recipients
-    all_recipients = all_recipients.set_index(['rec_id','date']).stack().to_frame().reset_index()
-    all_recipients.columns=['rec_id','date','ppe','qty']
-    all_recipients = all_recipients[all_recipients['qty']>0]
     ppes = all_recipients['ppe'].unique()
 
     # returns the distance between a donor and a recipient 
@@ -86,7 +89,9 @@ def simulate(ppe_strategy,delta,donor_waste,debug = False,writeFiles = False):
     max_donation_qty = 1000
     # end set parameters
 
+    #TODO instead of removing the mistakes here, remove them from the data set during the preparation
     all_donors = all_donors[all_donors.qty <= max_donation_qty]
+
     cur_donors = all_donors.drop(index=all_donors.index)
     cur_recipients = all_recipients.drop(index=all_recipients.index)
 
@@ -116,12 +121,17 @@ def simulate(ppe_strategy,delta,donor_waste,debug = False,writeFiles = False):
 
         # for each date, write the current pending requests
         
-        if len(agg_cur_recipients) == 0 or len(agg_cur_donors) == 0:
-            d1 = d2 # TODO check if this changes anything
+        #cur_distance_mat = agg_cur_donors.merge(agg_cur_recipients,on='ppe').merge(distance_mat,on=['don_id','rec_id'])[['don_id','rec_id','distance']]
+        # NEW TODO  test thoroughlky
+        don_rec = pd.DataFrame(agg_cur_donors.merge(agg_cur_recipients,on=['ppe']).groupby(['don_id','rec_id']).groups.keys())
+        if len(agg_cur_recipients) == 0 or len(agg_cur_donors) == 0 or len(don_rec) == 0:
+            d1 = d2 # if there are no recipients, no donors, or no compatible pairs of donor-recipient, continue
             d2 = d1 + datetime.timedelta(days=interval)
             continue 
 
-        cur_distance_mat = agg_cur_donors.merge(agg_cur_recipients,on='ppe').merge(distance_mat,on=['don_id','rec_id'])[['don_id','rec_id','distance']]
+
+        don_rec.columns=['don_id','rec_id']
+        cur_distance_mat = don_rec.merge(distance_mat,on=['don_id','rec_id'])
 
         dir = f'output/{d2.date()}' 
         if writeFiles:
@@ -132,15 +142,22 @@ def simulate(ppe_strategy,delta,donor_waste,debug = False,writeFiles = False):
             cur_distance_mat.to_csv(dir+f'/distance_matrix.csv')
             
         decisions = strategy(d2,agg_cur_donors,agg_cur_recipients,cur_distance_mat)
+        if len(decisions)>0:
+            print('here')
+
         decisions['date'] = d2
-        decisions['distance'] = decisions.merge(cur_distance_mat)['distance']
-        
+        # OLD vs NEW decisions['distance'] = decisions.merge(cur_distance_mat)['distance']
+        decisions = decisions.merge(cur_distance_mat,on=['don_id','rec_id'])
+
         # The dataframe of decisions contains the shipping decisions 
         # example
         #    don_id rec_id          ppe   qty                      date     distance
         # 0   don0   rec0  faceShields  10.0 2020-04-09 16:26:00+00:00  2548.016134
         # 1   don1   rec1  faceShields   1.0 2020-04-09 16:26:00+00:00  2527.163615
         # 2   don3   rec2  faceShields   5.0 2020-04-09 16:26:00+00:00  2359.760082
+
+
+        # TODO: the following code updates the recipient and donor tables after the decisions. Make sure it works. Follow step-by-step the test data
 
         # update cur_recipients by decreasing qty received, as follows:
         # 1) for each recipient, sum all qty received 
@@ -160,7 +177,7 @@ def simulate(ppe_strategy,delta,donor_waste,debug = False,writeFiles = False):
                     #  modify the row, but keep it, then exit the loop
                     cur_recipients.loc[request_idx,'qty'] -= rem_qty_to_ship
                     rem_qty_to_ship = 0
-                else:
+                else: # it should be rem_qty_to_ship == request_qty
                     if rem_qty_to_ship > request_qty:
                         print(f'Error: shipping to a recipient more  {ppe} than requested')
                     # remove the row and update remo_qty_to_ship
@@ -168,9 +185,35 @@ def simulate(ppe_strategy,delta,donor_waste,debug = False,writeFiles = False):
                     rec_requests_to_remove.append(request_idx)
         cur_recipients.drop(rec_requests_to_remove,inplace=True)
 
-        #  update donors table by removing all donors that shipped something 
-        for don_id,ppe in decisions.groupby(['don_id','ppe']).groups:
-            cur_donors = cur_donors[(cur_donors.don_id != don_id) | (cur_donors.ppe != ppe)]
+        # update cur_donors by decreasing qty received, as follows:
+        # 1) for each donor, sum all qty shipped 
+        # 2) iterate cur_recipients through the rows of that recipient, decreasing the qty column of all rows as long as there is more quantity received
+        # 3) remove the rows with zero qty
+        don_requests_to_remove = [] # this list contains the index of the rows of cur_recipients to delete
+        for _,dec in decisions.iterrows():
+            rem_qty_to_ship = dec.qty
+            ppe = dec.ppe
+            don = dec.don_id
+            don_df = cur_donors[(cur_donors.don_id == don)&(cur_donors.ppe == ppe)]
+            for _,row in don_df.iterrows():
+                request_idx = row.name
+                request_qty = row.qty
+                request_date = row.date
+                if rem_qty_to_ship < request_qty:
+                    #  modify the row, but keep it, then exit the loop
+                    cur_donors.loc[request_idx,'qty'] -= rem_qty_to_ship
+                    rem_qty_to_ship = 0
+                else:
+                    if rem_qty_to_ship > request_qty:
+                        print(f'Error: a donor is shipping more {ppe} than available')
+                    # remove the row and update remo_qty_to_ship
+                    rem_qty_to_ship -= request_qty
+                    don_requests_to_remove.append(request_idx)
+        cur_donors.drop(don_requests_to_remove,inplace=True)
+
+        # #  OLD: update donors table by removing all donors that shipped something 
+        # for don_id,ppe in decisions.groupby(['don_id','ppe']).groups:
+        #     cur_donors = cur_donors[(cur_donors.don_id != don_id) | (cur_donors.ppe != ppe)]
         
 
         alldecisions = pd.concat([alldecisions,decisions],ignore_index=True)
