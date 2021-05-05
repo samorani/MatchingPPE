@@ -1,7 +1,10 @@
 from ppematch.simulation import (
-    dummy_strategy,
-    proximity_match_strategy,
     simulate
+)
+
+from ppematch.strategies import (
+    dummy_strategy,
+    proximity_match_strategy
 )
 
 from ppematch.metrics import (
