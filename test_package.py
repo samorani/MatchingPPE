@@ -2,7 +2,7 @@ import pandas as pd
 import ppematch as pp
 
 # main data
-#data_directory = 'data'
+# data_directory = 'data'
 data_directory = 'test data/test 1'
 
 if data_directory.startswith('test'):
