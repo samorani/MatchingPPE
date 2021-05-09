@@ -3,7 +3,7 @@ import pandas as pd
 
 
 
-#################### DEFAULT STrATEGIES ################
+#################### DEFAULT STRATEGIES ################
 #### dummy strategy: first come-first-matched
 # date is the current date
 # curdon is the dataframe of current donors with the given ppe (don_req_id,don_id,date,ppe,qty)
@@ -42,7 +42,7 @@ def proximity_match_strategy(date,curdon,currec,curdistance_mat):
         for _, drow in donors_ppe.iterrows():
             if len(recipients_ppe) == 0:
                 break # if we don't have any more recipient with this ppe, consider the next ppe
-            
+
             # find the closest recipient to drow.don_id
             dr = curdistance_mat[(curdistance_mat.don_id == drow.don_id)].merge(recipients_ppe,on='rec_id').sort_values('distance').iloc[0]
             dqty = drow.qty # donor's qty

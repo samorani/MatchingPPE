@@ -7,7 +7,7 @@ import pickle
 
 def simulate(ppe_strategy,delta,donors_file = 'data/anon_donors.csv', recipients_file = 'data/anon_recipients.csv',
     distance_file = "data/anon_distance_matrix.p", debug = False,writeFiles = False):
-    
+
     # load files
     all_donors = pd.read_csv(donors_file,parse_dates=['date'],index_col=0)
     all_recipients = pd.read_csv(recipients_file,parse_dates=['date'],index_col=0)
@@ -21,11 +21,11 @@ def simulate(ppe_strategy,delta,donors_file = 'data/anon_donors.csv', recipients
 
     ppes = all_recipients['ppe'].unique()
 
-    # returns the distance between a donor and a recipient 
+    # returns the distance between a donor and a recipient
     def get_distance(don_id,rec_id):
-        return distance_mat.loc[(distance_mat.don_id == don_id)&(distance_mat.rec_id == rec_id),'distance'].values[0]  
+        return distance_mat.loc[(distance_mat.don_id == don_id)&(distance_mat.rec_id == rec_id),'distance'].values[0]
 
-    # run analysis 
+    # run analysis
     # # set parameters here
     interval = delta
     strategy = ppe_strategy
@@ -38,13 +38,13 @@ def simulate(ppe_strategy,delta,donors_file = 'data/anon_donors.csv', recipients
     cur_donors = all_donors.drop(index=all_donors.index)
     cur_recipients = all_recipients.drop(index=all_recipients.index)
 
-    cur_date = min(all_recipients.date.min(),all_donors.date.min())- datetime.timedelta(minutes=1)
-    max_date = max(all_recipients.date.max(),all_donors.date.max())+ datetime.timedelta(minutes=1)
+    cur_date = min(all_recipients.date.min(),all_donors.date.min()) - datetime.timedelta(minutes=1)
+    max_date = max(all_recipients.date.max(),all_donors.date.max()) + datetime.timedelta(minutes=1)
 
     d1 = cur_date
     d2 = cur_date + datetime.timedelta(days=interval)
 
-    
+
     all_granular_decisions = pd.DataFrame(columns=['don_id','rec_id','ppe', 'date','qty','distance','holding_time'])
     last_iteration = False
     while not last_iteration:
@@ -61,43 +61,30 @@ def simulate(ppe_strategy,delta,donors_file = 'data/anon_donors.csv', recipients
         agg_cur_donors = cur_donors.groupby(['don_id','ppe']).agg({'date':'min','qty':'sum'}).reset_index()
         agg_cur_recipients = cur_recipients.groupby(['rec_id','ppe']).agg({'date':'min','qty':'sum'}).reset_index()
 
-        # if (len(agg_cur_donors) != len(cur_donors) and debug):
-        #     print('agg_cur_donors and cur_donors have different lengths')
-        # if (len(agg_cur_recipients) != len(cur_recipients) and debug):
-        #     print('agg_cur_recipients and cur_recipients have different lengths')
-
-
         # for each date, write the current pending requests
-        
-        #cur_distance_mat = agg_cur_donors.merge(agg_cur_recipients,on='ppe').merge(distance_mat,on=['don_id','rec_id'])[['don_id','rec_id','distance']]
-        # NEW TODO  test thoroughlky
         don_rec = pd.DataFrame(agg_cur_donors.merge(agg_cur_recipients,on=['ppe']).groupby(['don_id','rec_id']).groups.keys())
         if len(agg_cur_recipients) == 0 or len(agg_cur_donors) == 0 or len(don_rec) == 0:
             d1 = d2 # if there are no recipients, no donors, or no compatible pairs of donor-recipient, continue
             d2 = d1 + datetime.timedelta(days=interval)
-            continue 
-
+            continue
 
         don_rec.columns=['don_id','rec_id']
         cur_distance_mat = don_rec.merge(distance_mat,on=['don_id','rec_id'])
 
-        dir = f'output/{d2.date()}' 
+        dir = f'output/{d2.date()}'
         if writeFiles:
             if not os.path.exists(dir):
                 os.mkdir(dir)
             agg_cur_recipients.to_csv(dir+f'/recipients.csv')
             agg_cur_donors.to_csv(dir+f'/donors.csv')
             cur_distance_mat.to_csv(dir+f'/distance_matrix.csv')
-            
+
         agg_decisions = strategy(d2,agg_cur_donors,agg_cur_recipients,cur_distance_mat)
-        # if len(agg_decisions)>0:
-        #     print('here')
 
         agg_decisions['date'] = d2
-        # OLD vs NEW decisions['distance'] = decisions.merge(cur_distance_mat)['distance']
         agg_decisions = agg_decisions.merge(cur_distance_mat,on=['don_id','rec_id'])
 
-        # The dataframe of agg_decisions contains the aggregated shipping decisions 
+        # The dataframe of agg_decisions contains the aggregated shipping decisions
         # example
         #    don_id rec_id          ppe   qty                      date     distance
         # 0   don0   rec0  faceShields  10.0 2020-04-09 16:26:00+00:00  2548.016134
@@ -131,17 +118,17 @@ def simulate(ppe_strategy,delta,donors_file = 'data/anon_donors.csv', recipients
                 # make the granular decision of shipping
                 granular_decisions.loc[len(granular_decisions)] = [drow.don_id,rrow.rec_id,ppe,dd,shipped_qty,np.round((dd-drow.date).total_seconds() / 24 / 3600)]
                 # print (f'Granular decisions: ship {shipped_qty} from {drow.don_id} to {rrow.rec_id}')
-                # update quantities    
+                # update quantities
                 totremqty-=shipped_qty
 
                 #update donors table
                 cur_donors.loc[dix,'qty'] -= shipped_qty
                 don_df.loc[dix,'qty'] -= shipped_qty
-                
+
                 #update recipient qty
                 cur_recipients.loc[rix,'qty'] -= shipped_qty
                 rec_df.loc[rix,'qty'] -= shipped_qty
-            
+
                 # this shipping action has one of the following outcomes: (1) brings rrow.qty to 0, (2) brings drow.qty to 0, (3) brings neither to 0
 
                 if rec_df.loc[rix,'qty'] == 0:
@@ -172,7 +159,7 @@ def simulate(ppe_strategy,delta,donors_file = 'data/anon_donors.csv', recipients
 
 
 
-        
+
 
         all_granular_decisions = pd.concat([all_granular_decisions,granular_decisions],ignore_index=True)
         # update decisions and print current decisions
@@ -184,5 +171,3 @@ def simulate(ppe_strategy,delta,donors_file = 'data/anon_donors.csv', recipients
     # print all decisions made
     all_granular_decisions.to_csv('output/decisions.csv')
     return all_recipients, all_donors, all_granular_decisions
-
-

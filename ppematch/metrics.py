@@ -9,18 +9,20 @@ def compute_metrics(R,D,X):
     donors = D.copy()
     decisions = X.copy()
 
-
     all_ppes = set(donors.ppe.unique())
     all_ppes = all_ppes.union(set(recipients.ppe.unique()))
 
     # set up result DataFrame
-    result = pd.DataFrame(columns=['metric_name','description','value','overall']) # the overall column is used to sort the metrics, it will be dropped at the end
+    result = pd.DataFrame(columns=['metric_name','description','value','overall'])
+	# Note: the overall column is used to sort the metrics, it will be dropped at the end
 
-    ############### FILL RATE for rec_id, ppe ##################
+    ############ FILL RATE for rec_id, ppe ############
     total_request = recipients.groupby(['rec_id','ppe'])['qty'].agg(['sum'])
     total_request =total_request.reset_index()
     total_request.columns=['rec_id','ppe','qty']
-    fr = total_request.merge(decisions,how='left',on=['rec_id','ppe'],suffixes=['_rec','_dec']).groupby(['rec_id','ppe']).agg({'qty_rec':['mean'],'qty_dec':['sum','size']})
+    fr = total_request.merge(decisions,how='left',on=['rec_id','ppe'],suffixes=['_rec','_dec'])\
+					.groupby(['rec_id','ppe'])\
+					.agg({'qty_rec':['mean'],'qty_dec':['sum','size']})
     fr = fr.reset_index()
     fr.columns = ['rec_id','ppe','requested','received','fill_rate']
     fr['fill_rate'] = fr['received'] / fr['requested']
@@ -32,7 +34,7 @@ def compute_metrics(R,D,X):
     result['value'] = fr['fill_rate']
     result['overall'] = 0
 
-    ############ FILL RATE FOR EACH PPE ##########
+    ############ FILL RATE FOR EACH PPE ############
     fr_p = fr.groupby('ppe')['fill_rate'].mean()
 
     for ppe,val in fr_p.items():
@@ -42,13 +44,14 @@ def compute_metrics(R,D,X):
     fr_p_zero
 
     for ppe,val in fr_p_zero.items():
-        result.loc[len(result)] = [f'fill rate exc zeros ({ppe})', f'average fill rate among recipients who requested {ppe} and received at least one unit',val,0]
+        result.loc[len(result)] = [f'fill rate exc zeros ({ppe})',
+			f'average fill rate among recipients who requested {ppe} and received at least one unit',val,0]
 
-    ########## OVERALL FILL RATE ##############
+    ############ OVERALL FILL RATE ############
     result.loc[len(result)] = [f'fill rate', f'overall fill rate, i.e., the average of the fill rates (ppe)',fr_p.mean(),1]
     result.loc[len(result)] = [f'fill rate exc zeros', f'overall fill rate among recipients who received something, i.e., the average of the fill rates (ppe) among recipients who received at least one unit',fr_p_zero.mean(),1]
 
-    ############# UNIT_MILES ####################
+    ############ UNIT_MILES ############
     decisions['unit_miles'] = decisions['distance'] * decisions['qty']
 
     gb = decisions.groupby('ppe')
@@ -62,9 +65,7 @@ def compute_metrics(R,D,X):
     overall_unit_miles = decisions.unit_miles.sum() / decisions.qty.sum()
     result.loc[len(result)] = [f'avg unit-miles', f'average miles travelled by each unit of ppe',overall_unit_miles,1]
 
-    ######### HOLDING TIME ######################
-    # dd = decisions.merge(donors,on=['don_id','ppe'],suffixes=['_dec','_don'])
-    # dd['holding_time'] = (dd['date_dec'] - dd['date_don']).dt.days
+    ############ HOLDING TIME ############
     decisions['unit_holding_time'] = decisions['holding_time'] * decisions['qty']
 
     gb = decisions.groupby('ppe')
