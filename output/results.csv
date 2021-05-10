@@ -1,0 +1,12 @@
+,metric_name,description,value
+8,avg unit-days (gowns),average days that each unit of gowns stayed idle,2.125
+6,avg unit-miles (gowns),average miles travelled by each unit of gowns,68.75
+0,"fill rate (R1,gowns)",fill rate of recipient R1 limited to gowns,1.0
+1,"fill rate (R2,gowns)",fill rate of recipient R2 limited to gowns,1.0
+2,fill rate (gowns),average fill rate among recipients who requested gowns,1.0
+3,fill rate exc zeros (gowns),average fill rate among recipients who requested gowns and received at least one unit,1.0
+9,avg holding time,average days that each unit of ppe stayed idle,2.125
+10,avg number of shipments,average number of shipments among donors,2.5
+7,avg unit-miles,average miles travelled by each unit of ppe,68.75
+4,fill rate,"overall fill rate, i.e., the average of the fill rates (ppe)",1.0
+5,fill rate exc zeros,"overall fill rate among recipients who received something, i.e., the average of the fill rates (ppe) among recipients who received at least one unit",1.0
