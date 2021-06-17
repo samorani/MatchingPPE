@@ -62,7 +62,7 @@ Expected input type: csv
 *Default: anon_donors.csv (which is the anonymized table of donors' requests from GetUsPPE.org)*
 
 ---
-#### recipient_path - Path to recipient data
+#### recipient_path 
 Path to the data set containing the recipients' requests. See expected format in the data folder.
 
 Expected input type: csv
@@ -144,6 +144,10 @@ Executes the strategy function over the data in a date simulation
 ---
 #### get_decisions()
 Returns final decision output from the framework after run()
+
+---
+#### get_metrics()
+Returns the performance metrics described in Section 4 of the research article
 
 ---
 #### debug(bool_flag)
