@@ -4,7 +4,7 @@ import ppe_match as pp
 import os
 
 # TODO: set the data_directory variable as the directory containing the tables (Table1.csv, Table2.csv, etc)
-data_directory = os.path.join(os.getcwd(), 'test_data\\test1')
+data_directory = os.path.join(os.getcwd(), 'test_data')
  
 try:
 	test_rec = f'{data_directory}/Table1.csv'
@@ -40,7 +40,7 @@ result = s.get_metrics()
 print(result)
 
 try:
-	result.to_csv('..\\results\\test1_metrics.csv')
+	result.to_csv('..\\results\\section3_test_results.csv')
 except:
 	print(f'===========================\nError saving the metrics above to file. Please verify path in the code\n==========================')
 

@@ -2,29 +2,14 @@
 
 ## Table of Contents
   * [Overview](#overview)
-    + [What is the PPE matching problem?](#what-is-the-ppe-matching-problem-)
-    + [Who needs to solve the PPE matching problem?](#who-needs-to-solve-the-ppe-matching-problem-)
-    + [What does this software package do?](#what-does-this-software-package-do-)
+    + [What is the PPE matching problem?](#what-is-the-ppe-matching-problem)
+    + [Who needs to solve the PPE matching problem?](#who-needs-to-solve-the-ppe-matching-problem)
+    + [What does this software package do?](#what-does-this-software-package-do)
   * [Installation](#installation)
   * [Simulation Class](#simulation-class)
     + [Parameters](#parameters)
-      - [donor_path](#donor-path)
-      - [recipient_path](#recipient-path---path-to-recipient-data)
-      - [distance_matrix_path](#distance-matrix-path)
-      - [strategy](#strategy)
-      - [interval](#interval)
-      - [max_donation_qty](#max-donation-qty)
-      - [writeFiles](#writefiles)
-      - [output_directory](#output-directory)
     + [Methods](#methods)
-      - [run()](#run--)
-      - [get_decisions()](#get-decisions--)
-      - [debug(bool_flag)](#debug-bool-flag-)
 
-
-
-![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) `To do`:
-1. (NOT YET) Clean up the files in the main directory: keep only AUTHORS, LICENSE, README.MD
 
 ## Overview
 ### What is the PPE matching problem?
