@@ -6,8 +6,6 @@
     + [Who needs to solve the PPE matching problem?](#who-needs-to-solve-the-ppe-matching-problem-)
     + [What does this software package do?](#what-does-this-software-package-do-)
   * [Installation](#installation)
-    + [Import the package using](#import-the-package-using)
-    + [Test the installation with the code snippet below](#test-the-installation-with-the-code-snippet-below)
   * [Simulation Class](#simulation-class)
     + [Parameters](#parameters)
       - [donor_path](#donor-path)
@@ -41,7 +39,7 @@ Our package provides an open-source simulation framework for researchers interes
 The user only needs to implement a function _ppestrategy(D,R,M)_, which solves the PPE matching problem. Our simulation framework evaluates the performance of that user-defined solution method on real-world requests received by GetUsPPE.org in the early months of the Covid-19 pandemic (April-July 2020).
 
 ## Installation
-In a virtual environment with Python 3.6+, pytestmatch can be installed via pip
+In a virtual environment with Python 3.6+, ppe_match can be installed via pip
 
     pip install ppe_match
 

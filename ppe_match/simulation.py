@@ -12,7 +12,7 @@ stream_hdlr = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 stream_hdlr.setFormatter(formatter)
 logger.addHandler(stream_hdlr)
-logger.setLevel(logging.WARN)
+logger.setLevel(logging.INFO)
 
 
 class Simulation:
