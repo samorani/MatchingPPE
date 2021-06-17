@@ -1,6 +1,6 @@
 # Data Files
 
-Our  data  set  was  built  by  collecting  and  anonymizing  the  requests  (from  both  donors and  recipients)  received  on  the  GetUsPPE.org  platform  during  the  first  few  months  ofthe Covid-19 pandemic (Apr-July 2020). It includes requests by prospective donors andrecipients interested in respectively donating and receiving certain types of ppes. The data is anonymized to ensure that donors and recipients cannot be identified. The data set and the anonymization procedure are described in ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) `Section 5 of the paper`
+Our  data  set  was  built  by  collecting  and  anonymizing  the  requests  (from  both  donors and  recipients)  received  on  the  GetUsPPE.org  platform  during  the  first  few  months  ofthe Covid-19 pandemic (Apr-July 2020). It includes requests by prospective donors andrecipients interested in respectively donating and receiving certain types of ppes. The data is anonymized to ensure that donors and recipients cannot be identified. The data set and the anonymization procedure are described in the research article.
 
 ## anon_donors.csv:
 This is the anonymized donors' file. Each row represents a request received by GetUsPPE.org made by a donor intereted in donating PPE. The columns are:

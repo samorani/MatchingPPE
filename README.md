@@ -55,58 +55,28 @@ In a virtual environment with Python 3.6+, ppe_match can be installed via pip
 ## Simulation Class
 ### Parameters
 #### donor_path
-Path to the data set containing the donors' requests.
-Expected input type: csv
-Expected columns:
-- don_id - Unique ID for Donor *(type:str)*
-- date - Datetime of Request *(type:datetime)*
-- ppe - Type of PPE *(type:str)*
-- qty - Number of PPEs Requested *(type:int/float)*
-- don_req_id - Unique ID for Each Donor Request *(type:int)*
+Path to the data set containing the donors' requests. See expected format in the data folder.
 
-###### Example:
- don_id|date|ppe|qty|don_req_id
- |--|--|--|--|--|
-don0|2020-04-09 13:08:00+00:00|faceShields|10|0
-don1|2020-04-09 13:36:00+00:00|faceShields|1|1
-don2|2020-04-09 13:53:00+00:00|faceShields|3000|2
+Expected input type: csv
 
 *Default: anon_donors.csv (which is the anonymized table of donors' requests from GetUsPPE.org)*
 
 ---
 #### recipient_path - Path to recipient data
-Path to the data set containing the recipients' requests.
-Expected input type: csv
-Expected columns:
-- rec_id - Unique ID for Recipient *(type:str)*
-- date - Datetime of Request *(type:datetime)*
-- (*PPE Type column) - Every PPE type is defined as its own column and the value in these column represent the quantity the recipient requested for the respective PPE type *(type: int/float)*
-- rec_req_id - Unique ID for Each Recipient Request *(type:int)* (I THINK THIS IS NOT NEEDED)
+Path to the data set containing the recipients' requests. See expected format in the data folder.
 
-###### Example:
-rec_id|date|disinfectingWipes|surgicalCaps|disposableBooties|respirators|handmadeMasks|nitrileGloves|coveralls|handSanitizer|safetyGlasses|bodyBags|gowns|faceShields|safetyGoggles|thermometers|surgicalMasks|paprShield|babyMonitors|rec_req_id
---|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--
-rec0|2020-04-02 16:27:00+00:00|0|0|0|10000.0|0|10000|0|0|0|0|1000|5000|0|0|0|0|0|0
-rec1|2020-04-02 16:35:00+00:00|4|0|0|9.0|9|5|0|4|0|0|9|9|0|0|0|0|0|1
-rec2|2020-04-02 16:44:00+00:00|300|0|100|5.0|0|0|0|25|0|0|100|10|0|20|0|0|0|2
+Expected input type: csv
 
 *Default: anon_recipients.csv (which is the anonymized table of recipients' requests from GetUsPPE.org)*
 
 
 ---
 #### distance_matrix_path
-Path to distance matrix between donors and recipients.
-Expected input type: pickle(pandas dataframe)
-Expected columns:
-- don_id - Unique ID for Donnor *(type:str)*
-- rec_id - Unique ID for Recipient *(type:str)*
-- distance - distance, in miles, between don_id and rec_id *(type:float)*
+Path to distance matrix between donors and recipients. See expected format in the data folder.
 
-###### Example:
-don_id|rec_id|distance
---|--|--
-don585|rec4650|540.263969
-don749 |rec5876|770.589552
+Expected input type: csv
+
+*Default: anon_distance_matrix.csv (which is the anonymized distance matrix from GetUsPPE.org)*
 
 ---
 #### strategy
@@ -125,32 +95,18 @@ where,
 *Default: proximity_match_strategy*
 
 ###### Returns:
-pd.dataframe of decisions with columns (don_id, rec_id, ppe, qty). Each row represents the decisions of shipping from donor _don_id_ to recipient _rec_id_ _qty_ units of PPE of type _ppe_.
+pd.dataframe of decisions with columns (don_id, rec_id, ppe, qty). Each row represents the decision of shipping from donor _don_id_ to recipient _rec_id_ _qty_ units of PPE of type _ppe_.
 
-Class methods:
-
-    get_strategy()
-    set_strategy()
 
 ---
 #### interval
 Day Interval set for framework to iterate over.
 *Default: 7 (days)*
 
-Class methods:
-
-    get_interval()
-    set_interval()
-
 ---
 #### max_donation_qty
 Maximum quantity limit for donor to donate (helps filter out dummy entries or test entries)
 *Default: 1000 (ppe units)*
-
-Class methods:
-
-    get_max_donation_qty()
-    set_max_donation_qty()
 
 ---
 #### writeFiles
