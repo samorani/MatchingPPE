@@ -174,8 +174,9 @@ output
 ```
 ---
 #### output_directory
-Sets the directory the intermediate files and results will be saved
+Sets the directory where the intermediate files and results will be saved
 *Default: output/*
+
 ---
 
 
