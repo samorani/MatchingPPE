@@ -7,7 +7,7 @@ with open('README.md') as readme_file:
 
 setup_args = dict(
     name='ppe_match',
-    version='0.1',
+    version='0.1.0',
     description=' Intuitive framework that allows researchers to implement and test matching methodologies',
     long_description_content_type="text/markdown",
     long_description=README,
