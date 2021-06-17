@@ -5,22 +5,20 @@ import pathlib
 with open('README.md') as readme_file:
     README = readme_file.read()
 
-with open('HISTORY.md') as history_file:
-    HISTORY = history_file.read()
-
 setup_args = dict(
-    name='fraPPE-Matcha',
-    version='0.1.2.7',
+    name='ppe_match',
+    version='0.0.2.3',
     description=' Intuitive framework that allows researchers to implement and test matching methodologies',
     long_description_content_type="text/markdown",
-    long_description=README + '\n\n' + HISTORY,
+    long_description=README,
     license='MIT',
     packages=find_packages(),
     author='Ram Bala, Michele Samorani, Rohit Jacob',
     author_email='rbala@scu.edu, msamorani@scu.edu, rohitjacob92@gmail.com',
     keywords=['matching','ppe','framework','matcha','frappe'],
     url='https://github.com/samorani/MatchingPPE',
-    include_package_data=True
+    include_package_data=True,
+	package_data={'': ['data/*.csv']},
 )
 
 with pathlib.Path('requirements.txt').open() as requirements_txt:
@@ -33,7 +31,7 @@ classifiers=[
   'Intended Audience :: Developers',      # Define that your audience are developers
   'Topic :: Software Development :: Build Tools',
   'License :: OSI Approved :: MIT License',   # Again, pick a license
-  'Programming Language :: Python :: 3',      #Specify which pyhton versions that you want to support
+  'Programming Language :: Python :: 3',      #Specify which python versions that you want to support
   'Programming Language :: Python :: 3.4',
   'Programming Language :: Python :: 3.5',
   'Programming Language :: Python :: 3.6',
