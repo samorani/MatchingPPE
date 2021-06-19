@@ -39,9 +39,6 @@ In a virtual environment with Python 3.6+, ppe_match can be installed via pip
 	# Initiate the simuation framework with default parameters
     s = Simulation()
 
-    # (Optional) Set debug as True to monitor logs
-    s.debug(True)
-
     # Run the simulation on the GetUsPPE.org data set
     s.run()
 
@@ -143,11 +140,11 @@ Executes the strategy function over the data in a date simulation
 
 ---
 #### get_decisions()
-Returns final decision output from the framework after run()
+Returns the list of all matching decisions made during the simulation.
 
 ---
 #### get_metrics()
-Returns the performance metrics described in Section 4 of the research article
+Returns the performance metrics described in Section 4 of the research article. The metrics are reported at the PPE level, the recipient level, and the "overall" level (see Section 4). The "overall" metrics are at the bottom of the DataFrame.
 
 ---
 #### debug(bool_flag)
