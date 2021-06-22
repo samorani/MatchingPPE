@@ -14,7 +14,7 @@ stream_hdlr.setFormatter(formatter)
 logger.addHandler(stream_hdlr)
 logger.setLevel(logging.WARN)
 
-def dummy_strategy(date,curdon,currec,curdistance_mat):
+def FCFM_strategy(date,curdon,currec,curdistance_mat):
     """simple first-come-first-matched strategy that matches the i-th donor request with the i-th recipient request for the same PPE
 
     :param date: the current date
