@@ -34,7 +34,7 @@ rec0|2020-04-02 16:27:00+00:00|gowns|1000.0
 rec0|2020-04-02 16:27:00+00:00|faceShields|5000.0
 rec0|2020-04-02 16:27:00+00:00|respirators|10000.0
 rec0|2020-04-02 16:27:00+00:00|nitrileGloves|10000.0
-rec1|2020-04-02 16:35:00+00:00|gowns|9.0
+rec1|2020-04-02 16:35:00+00:00|handSanitizer|4.0
 
 ## anon_distance_matrix.csv
 Distance, in miles, between pairs of donor and recipients. (donor, recipient) pairs with no PPE type in common are excluded.
