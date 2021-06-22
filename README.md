@@ -48,12 +48,13 @@ In a virtual environment with Python 3.6+, ppe_match can be installed via pip
 	# Display metrics
 	s.get_metrics() # Pandas dataframe that can be stored
 
-## User-defined matching solution methods
+### User-defined matching solution methods
 
 To test a new matching solution method, start by defining a function that takes as input the current date (date, a datetime object), the current donor and recipient requests (Dt and Rt), and the distance matrix between donors and recipients. Dt is a DataFrame with columns (don_id,date,ppe,qty), Rt is a DataFrame with columns (rec_id,date,ppe,qty), M is a DataFrame with columns (don_id,rec_id,distance). The function must return the DataFrame Xt of matching decisions (don_id, rec_id, ppe, qty).
 
 For example, a first-come-first-matched strategy that matches the i-th donor's request with the i-th recipient's request is implemented as follows:
 
+    import pandas as pd
     def my_strategy(date,Dt,Rt,M):
         # prepare the result DataFrame (X^t)
         result = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
@@ -81,7 +82,7 @@ To run a simulation on the GetUsPPE.org data set, modify the code above by passi
 
     s = Simulation(strategy=my_strategy)
 
-The code contains the implementation of two strategies: the first-come-first-matched strategy illustrated above and the "proximity matching" strategy tested by Bala et al. (2021).
+The ppe_match package contains the implementation of two strategies: the first-come-first-matched strategy illustrated above (strategies.FCFM_strategy) and the "proximity matching" strategy tested by Bala et al. (2021) (strategies.proximity_match_strategy).
 
 ## Simulation Class
 ### Parameters
