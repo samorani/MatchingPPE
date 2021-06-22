@@ -48,6 +48,40 @@ In a virtual environment with Python 3.6+, ppe_match can be installed via pip
 	# Display metrics
 	s.get_metrics() # Pandas dataframe that can be stored
 
+## User-defined matching solution methods
+
+To test a new matching solution method, start by defining a function that takes as input the current date (date, a datetime object), the current donor and recipient requests (Dt and Rt), and the distance matrix between donors and recipients. Dt is a DataFrame with columns (don_id,date,ppe,qty), Rt is a DataFrame with columns (rec_id,date,ppe,qty), M is a DataFrame with columns (don_id,rec_id,distance). The function must return the DataFrame Xt of matching decisions (don_id, rec_id, ppe, qty).
+
+For example, a first-come-first-matched strategy that matches the i-th donor's request with the i-th recipient's request is implemented as follows:
+
+    def my_strategy(date,Dt,Rt,M):
+        # prepare the result DataFrame (X^t)
+        result = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
+
+        # the ppe to consider are the intersection of the PPEs in the table of current donors Dt (D^t) and the table of current recipients Rt (R^t)
+        ppes_to_consider = set(Dt.ppe.unique())
+        ppes_to_consider = ppes_to_consider.intersection(set(Rt.ppe.unique()))
+
+        # for each ppe to consider, match the i-th donor request with the i-th recipient request
+        for ppe in ppes_to_consider:
+            donors_ppe = Dt[Dt.ppe == ppe]
+            recipients_ppe = Rt[Rt.ppe == ppe]
+
+            n = min(len(donors_ppe),len(recipients_ppe))
+            for i in range(n):
+                don = donors_ppe.iloc[i] 
+                rec = recipients_ppe.iloc[i]
+                qty = min(don.qty,rec.qty)
+                
+                # add 
+                result.loc[len(result)] = [don.don_id,rec.rec_id,ppe,qty]
+        return result
+
+To run a simulation on the GetUsPPE.org data set, modify the code above by passing the user-defined function to the Simulation constructor:
+
+    s = Simulation(strategy=my_strategy)
+
+The code contains the implementation of two strategies: the first-come-first-matched strategy illustrated above and the "proximity matching" strategy tested by Bala et al. (2021).
 
 ## Simulation Class
 ### Parameters
@@ -80,14 +114,14 @@ Expected input type: csv
 User defined strategy to allocate PPE
 The function must have the following arguments:
 
-    ppestrategy(D,R,M)
+    ppestrategy(date, Dt,Rt,M)
 
 where,
 
-- `D` is a pandas.DataFrame object whose rows contain the donors requests
-- `R` is a pandas.DataFrame object whose rows contain the recipients requests
-- `M` is a pandas.DataFrameobject that reports
-   the distance between each donor and each recipient.
+- `date` is a datetime with the current date
+- `Dt` is a pandas.DataFrame object whose rows contain the current donor requests
+- `Rt` is a pandas.DataFrame object whose rows contain the current recipient requests
+- `M` is a pandas.DataFrameobject that reports the distance between each donor and each recipient.
 
 *Default: proximity_match_strategy*
 

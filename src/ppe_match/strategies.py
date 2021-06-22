@@ -14,65 +14,71 @@ stream_hdlr.setFormatter(formatter)
 logger.addHandler(stream_hdlr)
 logger.setLevel(logging.WARN)
 
-def FCFM_strategy(date,curdon,currec,curdistance_mat):
+def FCFM_strategy(date,Dt,Rt,M):
     """simple first-come-first-matched strategy that matches the i-th donor request with the i-th recipient request for the same PPE
 
     :param date: the current date
     :type date: date
-    :param curdon: current donor requests (don_id,date,ppe,qty)
-    :type curdon: pandas.DataFrame
-    :param currec: current recipient requests (rec_id,date,ppe,qty)
-    :type currec: pandas.DataFrame
-    :param curdistance_mat: distance matrix M
-    :type curdistance_mat: pandas.DataFrame
+    :param Dt: current donor requests (don_id,date,ppe,qty)
+    :type Dt: pandas.DataFrame
+    :param Rt: current recipient requests (rec_id,date,ppe,qty)
+    :type Rt: pandas.DataFrame
+    :param M: distance matrix M
+    :type M: pandas.DataFrame
     :return: the list of decisions made
     :rtype: pandas.DataFrame (don_id,rec_id,ppe,qty)
     """
+    # prepare the result DataFrame (X^t)
     result = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
-    ppes_to_consider = set(curdon.ppe.unique())
-    ppes_to_consider = ppes_to_consider.intersection(set(currec.ppe.unique()))
 
+    # the ppe to consider are the intersection of the PPEs in the table of current donors Dt (D^t) and the table of current recipients Rt (R^t)
+    ppes_to_consider = set(Dt.ppe.unique())
+    ppes_to_consider = ppes_to_consider.intersection(set(Rt.ppe.unique()))
+
+    # for each ppe to consider, match the i-th donor request with the i-th recipient request
     for ppe in ppes_to_consider:
-        donors_ppe = curdon[curdon.ppe == ppe]
-        recipients_ppe = currec[currec.ppe == ppe]
+        donors_ppe = Dt[Dt.ppe == ppe]
+        recipients_ppe = Rt[Rt.ppe == ppe]
 
         n = min(len(donors_ppe),len(recipients_ppe))
         for i in range(n):
             don = donors_ppe.iloc[i] 
             rec = recipients_ppe.iloc[i]
             qty = min(don.qty,rec.qty)
+            
+            # add 
             result.loc[len(result)] = [don.don_id,rec.rec_id,ppe,qty]
     return result
 
 
-def proximity_match_strategy(date,curdon,currec,curdistance_mat):
+def proximity_match_strategy(date,Dt,Rt,M):
    """Proximity-matching strategy. For each ppe, match each donor with the closest recipient
 
     :param date: the current date
     :type date: date
-    :param curdon: current donor requests (don_id,date,ppe,qty)
-    :type curdon: pandas.DataFrame
-    :param currec: current recipient requests (rec_id,date,ppe,qty)
-    :type currec: pandas.DataFrame
-    :param curdistance_mat: distance matrix M
-    :type curdistance_mat: pandas.DataFrame
+    :param Dt: current donor requests (don_id,date,ppe,qty)
+    :type Dt: pandas.DataFrame
+    :param Rt: current recipient requests (rec_id,date,ppe,qty)
+    :type Rt: pandas.DataFrame
+    :param M: distance matrix M
+    :type M: pandas.DataFrame
     :return: the list of decisions made
     :rtype: pandas.DataFrame (don_id,rec_id,ppe,qty)
     """
     result = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
-    ppes_to_consider = set(curdon.ppe.unique())
-    ppes_to_consider = ppes_to_consider.intersection(set(currec.ppe.unique()))
+    ppes_to_consider = set(Dt.ppe.unique())
+    ppes_to_consider = ppes_to_consider.intersection(set(Rt.ppe.unique()))
 
     for ppe in ppes_to_consider:
-        donors_ppe = curdon[curdon.ppe == ppe].copy()
-        recipients_ppe = currec[currec.ppe == ppe].copy()
+        donors_ppe = Dt[Dt.ppe == ppe].copy()
+        recipients_ppe = Rt[Rt.ppe == ppe].copy()
 
         for _, drow in donors_ppe.iterrows():
             if len(recipients_ppe) == 0:
                 break # if we don't have any more recipient with this ppe, consider the next ppe
 
             # find the closest recipient to drow.don_id
-            dr = curdistance_mat[(curdistance_mat.don_id == drow.don_id)].merge(recipients_ppe,on='rec_id').sort_values('distance').iloc[0]
+            dr = M[(M.don_id == drow.don_id)].merge(recipients_ppe,on='rec_id').sort_values('distance').iloc[0]
             dqty = drow.qty # donor's qty
             rqty = recipients_ppe.loc[recipients_ppe.rec_id == dr.rec_id,'qty'].values[0] #recipient's qty
             qty = min(dqty,rqty) #qty to ship
