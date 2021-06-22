@@ -1,3 +1,12 @@
+"""Module defining the class responsible for implementing the simulation 
+algorithm for the PPE matching problem.
+Copyright 2021 M Samorani, R Bala, R Jacob, S He
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+"""
+
+
 import pandas as pd
 import numpy as np
 import datetime
@@ -16,6 +25,8 @@ logger.setLevel(logging.INFO)
 
 
 class Simulation:
+	""" Class to run the simulation on a given data set
+	"""
 	def __init__(self,
 				donor_path= 'data/anon_donors.csv',
 				recipient_path= 'data/anon_recipients.csv',
@@ -23,6 +34,25 @@ class Simulation:
 				strategy=strategies.proximity_match_strategy,
 				interval=7, max_donation_qty=1000,
 				writeFiles=False, output_directory = 'output/'):
+		"""Initialize the simulation. 
+
+		:param donor_path: the file name (csv) of the table D of donor requests, defaults to 'data/anon_donors.csv'
+		:type donor_path: str, optional
+		:param recipient_path: the file name (csv) of the table R of recipient requests, defaults to 'data/anon_recipients.csv'
+		:type recipient_path: str, optional
+		:param distance_matrix_path: the file name (csv) of the distance matrix M, defaults to "data/anon_distance_matrix.csv"
+		:type distance_matrix_path: str, optional
+		:param strategy: a function that solves the matching problem given the current donor and recipient requests, defaults to strategies.proximity_match_strategy
+		:type strategy: a function with 4 inputs: current date, D^t, R^t, M, optional
+		:param interval: days between subsequent solutions of the PPE matching problem, defaults to 7
+		:type interval: int, optional
+		:param max_donation_qty: donation requests with more than this number of units will be considered erroneous and removed, defaults to 1000
+		:type max_donation_qty: int, optional
+		:param writeFiles: whether to write the files of each execution, defaults to False
+		:type writeFiles: bool, optional
+		:param output_directory: the output directory, defaults to 'output/'
+		:type output_directory: str, optional
+		"""
 		# Data
 		dirname = os.path.dirname(__file__)
 		self.all_donors = pd.read_csv(os.path.join(dirname, donor_path),parse_dates=['date'],index_col=0)
@@ -87,7 +117,7 @@ class Simulation:
 		if self.debug:
 			logger.setLevel(10)
 
-	# this code comes from Process results.ipynb
+	# computes the metrics and return a DataFrame
 	def compute_metrics(self):
 		# fill rate
 		donors = self.all_donors.copy()

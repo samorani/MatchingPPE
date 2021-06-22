@@ -1,5 +1,11 @@
-import pandas as pd
+"""Module defining some PPE matching strategies.
+Copyright 2021 M Samorani, R Bala, R Jacob, S He
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+"""
 
+import pandas as pd
 import logging
 logger = logging.getLogger(__name__)
 stream_hdlr = logging.StreamHandler()
@@ -8,17 +14,20 @@ stream_hdlr.setFormatter(formatter)
 logger.addHandler(stream_hdlr)
 logger.setLevel(logging.WARN)
 
-
-#################### DEFAULT STRATEGIES ################
-#### dummy strategy: first come-first-matched
-# date is the current date
-# curdon is the dataframe of current donors with the given ppe (don_req_id,don_id,date,ppe,qty)
-# currec is the dataframe of current recipients with the given ppe (rec_req_id,rec_id,date,ppe,qty)
-# ppe is the current ppe
-
-# assumptions: curdon currec must have one row per (don_id/rec_id,ppe)
-# return dataframe of decisions (don_id,rec_id,ppe,qty)
 def dummy_strategy(date,curdon,currec,curdistance_mat):
+    """simple first-come-first-matched strategy that matches the i-th donor request with the i-th recipient request for the same PPE
+
+    :param date: the current date
+    :type date: date
+    :param curdon: current donor requests (don_id,date,ppe,qty)
+    :type curdon: pandas.DataFrame
+    :param currec: current recipient requests (rec_id,date,ppe,qty)
+    :type currec: pandas.DataFrame
+    :param curdistance_mat: distance matrix M
+    :type curdistance_mat: pandas.DataFrame
+    :return: the list of decisions made
+    :rtype: pandas.DataFrame (don_id,rec_id,ppe,qty)
+    """
     result = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
     ppes_to_consider = set(curdon.ppe.unique())
     ppes_to_consider = ppes_to_consider.intersection(set(currec.ppe.unique()))
@@ -29,14 +38,27 @@ def dummy_strategy(date,curdon,currec,curdistance_mat):
 
         n = min(len(donors_ppe),len(recipients_ppe))
         for i in range(n):
-            don = donors_ppe.iloc[i] # (don_req_id,don_id,date,ppe,qty)
+            don = donors_ppe.iloc[i] 
             rec = recipients_ppe.iloc[i]
             qty = min(don.qty,rec.qty)
             result.loc[len(result)] = [don.don_id,rec.rec_id,ppe,qty]
     return result
 
-# proximity match strategy
+
 def proximity_match_strategy(date,curdon,currec,curdistance_mat):
+   """Proximity-matching strategy. For each ppe, match each donor with the closest recipient
+
+    :param date: the current date
+    :type date: date
+    :param curdon: current donor requests (don_id,date,ppe,qty)
+    :type curdon: pandas.DataFrame
+    :param currec: current recipient requests (rec_id,date,ppe,qty)
+    :type currec: pandas.DataFrame
+    :param curdistance_mat: distance matrix M
+    :type curdistance_mat: pandas.DataFrame
+    :return: the list of decisions made
+    :rtype: pandas.DataFrame (don_id,rec_id,ppe,qty)
+    """
     result = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
     ppes_to_consider = set(curdon.ppe.unique())
     ppes_to_consider = ppes_to_consider.intersection(set(currec.ppe.unique()))
