@@ -42,17 +42,17 @@ def FCFM_strategy(date,Dt,Rt,M):
 
         n = min(len(donors_ppe),len(recipients_ppe))
         for i in range(n):
-            don = donors_ppe.iloc[i] 
+            don = donors_ppe.iloc[i]
             rec = recipients_ppe.iloc[i]
             qty = min(don.qty,rec.qty)
-            
-            # add 
+
+            # add
             result.loc[len(result)] = [don.don_id,rec.rec_id,ppe,qty]
     return result
 
 
 def proximity_match_strategy(date,Dt,Rt,M):
-   """Proximity-matching strategy. For each ppe, match each donor with the closest recipient
+    """Proximity-matching strategy. For each ppe, match each donor with the closest recipient
 
     :param date: the current date
     :type date: date
