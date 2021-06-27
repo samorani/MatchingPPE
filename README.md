@@ -10,7 +10,7 @@
     + [Parameters](#parameters)
     + [Methods](#methods)
 
-
+ 
 ## Overview
 ### What is the PPE matching problem?
 The PPE Matching Problem consists of optimally matching a set of requests, D, made by donors interested in donating Personal Protective Equipment (or PPE, such as masks, gowns, gloves, etc) with a set of requests, R, made by recipients interested in receieving PPE. Requests are characterized by a timestamp (date), a type and quantity of PPE to donate or request, and a donor or recipient id. The input of the problem also includes a matrix M of distances between donors and recipients. The objectives are multiple, and include maximizing the recipients' fill rate, minimizing the total shipping distance, minimizing the holding time of PPE, and minimizing the number of shipments of each donor.   
@@ -70,11 +70,11 @@ For example, a first-come-first-matched strategy that matches the i-th donor's r
 
             n = min(len(donors_ppe),len(recipients_ppe))
             for i in range(n):
-                don = donors_ppe.iloc[i] 
+                don = donors_ppe.iloc[i]
                 rec = recipients_ppe.iloc[i]
                 qty = min(don.qty,rec.qty)
-                
-                # add 
+
+                # add
                 result.loc[len(result)] = [don.don_id,rec.rec_id,ppe,qty]
         return result
 
@@ -94,7 +94,7 @@ Expected input type: csv
 *Default: anon_donors.csv (which is the anonymized table of donors' requests from GetUsPPE.org)*
 
 ---
-#### recipient_path 
+#### recipient_path
 Path to the data set containing the recipients' requests. See expected format in the data folder.
 
 Expected input type: csv
