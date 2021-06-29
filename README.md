@@ -57,7 +57,7 @@ For example, a first-come-first-matched strategy that matches the i-th donor's r
     import pandas as pd
     def my_strategy(date,Dt,Rt,M):
         # prepare the result DataFrame (X^t)
-        result = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
+        Xt = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
 
         # the ppe to consider are the intersection of the PPEs in the table of current donors Dt (D^t) and the table of current recipients Rt (R^t)
         ppes_to_consider = set(Dt.ppe.unique())
@@ -70,13 +70,13 @@ For example, a first-come-first-matched strategy that matches the i-th donor's r
 
             n = min(len(donors_ppe),len(recipients_ppe))
             for i in range(n):
-                don = donors_ppe.iloc[i]
+                don = donors_ppe.iloc[i] 
                 rec = recipients_ppe.iloc[i]
                 qty = min(don.qty,rec.qty)
-
-                # add
-                result.loc[len(result)] = [don.don_id,rec.rec_id,ppe,qty]
-        return result
+                
+                # add 
+                Xt.loc[len(Xt)] = [don.don_id,rec.rec_id,ppe,qty]
+        return Xt
 
 To run a simulation on the GetUsPPE.org data set, modify the code above by passing the user-defined function to the Simulation constructor:
 
