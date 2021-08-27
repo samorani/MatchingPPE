@@ -142,7 +142,7 @@ Maximum quantity limit for donor to donate (helps filter out dummy entries or te
 
 ---
 #### writeFiles
-Boolean flag to save intermediate outputs and final decisions as csv
+Boolean flag to save intermediate input objects (donors, recipients, and distances) and outputs (decisions) as csv
 *Default: False*
 
 If set to *True* intermediate data will be saved for every iteration as follows:
