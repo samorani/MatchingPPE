@@ -48,6 +48,33 @@ In a virtual environment with Python 3.6+, ppe_match can be installed via pip
 	# Display metrics
 	s.get_metrics() # Pandas dataframe that can be stored
 
+### Visualize the five summary metrics
+The last five metrics are the average holding time, the average number of shipments per donor, the average unit-miles, the average fill rate, and the average fill rate excluding zeros.
+
+	res = s.get_metrics()
+	res.tail(5)
+
+### Obtain single metric
+By defining a weight for each of the five summary metrics, the user can easily obtain a single metric.
+
+	import numpy as np
+
+	# set weights of different objectives
+	avg_holding_time_weight = 1
+	avg_shipments_weight = 10
+	avg_unit_miles_weight = 1
+	fill_rate_weight = 100
+	fill_rate_0_weight = 100
+
+	weights = np.array([avg_holding_time_weight,avg_shipments_weight,avg_unit_miles_weight,fill_rate_weight,fill_rate_0_weight])
+
+	# retrieve the five metrics above
+	metric_values = res['value'].tail(5).values
+
+	# compute dot product
+	metric_values.dot(weights)
+
+
 ### User-defined matching solution methods
 
 To test a new matching solution method, start by defining a function that takes as input the current date (date, a datetime object), the current donor and recipient requests (Dt and Rt), and the distance matrix between donors and recipients. Dt is a DataFrame with columns (don_id,date,ppe,qty), Rt is a DataFrame with columns (rec_id,date,ppe,qty), M is a DataFrame with columns (don_id,rec_id,distance). The function must return the DataFrame Xt of matching decisions (don_id, rec_id, ppe, qty).
