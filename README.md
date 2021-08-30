@@ -79,10 +79,44 @@ By defining a weight for each of the five summary metrics, the user can easily o
 
 To test a new matching solution method, start by defining a function that takes as input the current date (date, a datetime object), the current donor and recipient requests (Dt and Rt), and the distance matrix between donors and recipients. Dt is a DataFrame with columns (don_id,date,ppe,qty), Rt is a DataFrame with columns (rec_id,date,ppe,qty), M is a DataFrame with columns (don_id,rec_id,distance). The function must return the DataFrame Xt of matching decisions (don_id, rec_id, ppe, qty).
 
-For example, a first-come-first-matched strategy that matches the i-th donor's request with the i-th recipient's request is implemented as follows:
+
+For example, a proximity match strategy that matches the ech donor's request with the closest recipient's request is implemented as follows:
+
+	import pandas as pd
+	def proximity_match_strategy(date,Dt,Rt,M):
+        # prepare the result DataFrame (X^t)
+	    Xt = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
+	    ppes_to_consider = set(Dt.ppe.unique())
+	    ppes_to_consider = ppes_to_consider.intersection(set(Rt.ppe.unique()))
+
+	    # for each ppe to consider, match each donor request with the closest recipient request
+	    for ppe in ppes_to_consider:
+		donors_ppe = Dt[Dt.ppe == ppe].copy()
+		recipients_ppe = Rt[Rt.ppe == ppe].copy()
+
+		for _, drow in donors_ppe.iterrows():
+		    if len(recipients_ppe) == 0:
+			break # if we don't have any more recipient with this ppe, consider the next ppe
+
+		    # find the closest recipient to drow.don_id
+		    dr = M[(M.don_id == drow.don_id)].merge(recipients_ppe,on='rec_id').sort_values('distance').iloc[0]
+		    dqty = drow.qty # donor's qty
+		    rqty = recipients_ppe.loc[recipients_ppe.rec_id == dr.rec_id,'qty'].values[0] #recipient's qty
+		    qty = min(dqty,rqty) #qty to ship
+		    if qty == 0:
+			logger.info('qty is zero')
+		    if qty == rqty:
+			recipients_ppe = recipients_ppe[recipients_ppe.rec_id !=  dr.rec_id] # remove recipient
+		    else:
+			recipients_ppe.loc[recipients_ppe.rec_id == dr.rec_id,'qty'] -= qty #update recipient's qty
+		    Xt.loc[len(Xt),:] = [dr.don_id, dr.rec_id,ppe,qty]
+
+	    return Xt
+
+On the other hand, a first-come-first-matched (FCFM) strategy that matches the i-th donor's request with the i-th recipient's request is implemented as follows:
 
     import pandas as pd
-    def my_strategy(date,Dt,Rt,M):
+    def FCFM_strategy(date,Dt,Rt,M):
         # prepare the result DataFrame (X^t)
         Xt = pd.DataFrame(columns=['don_id','rec_id','ppe','qty'])
 
@@ -105,11 +139,13 @@ For example, a first-come-first-matched strategy that matches the i-th donor's r
                 Xt.loc[len(Xt)] = [don.don_id,rec.rec_id,ppe,qty]
         return Xt
 
-To run a simulation on the GetUsPPE.org data set, modify the code above by passing the user-defined function to the Simulation constructor:
+
+
+Once you have implemented your own matching strategy (let us call it _my_strategy_), run a simulation on the GetUsPPE.org data set by passing the function to the Simulation constructor:
 
     s = Simulation(strategy=my_strategy)
 
-The ppe_match package contains the implementation of two strategies: the first-come-first-matched strategy illustrated above (strategies.FCFM_strategy) and the "proximity matching" strategy tested by Bala et al. (2021) (strategies.proximity_match_strategy).
+The ppe_match package contains the implementation of two strategies illustrated above: the first-come-first-matched strategy (strategies.FCFM_strategy) and the "proximity matching" strategy tested by Bala et al. (2021) (strategies.proximity_match_strategy).
 
 ## Simulation Class
 ### Parameters
