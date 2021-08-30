@@ -54,7 +54,7 @@ The last five metrics are the average holding time, the average number of shipme
 	res = s.get_metrics()
 	res.tail(5)
 
-### Obtain single metric
+### Obtain a single metric
 By defining a weight for each of the five summary metrics, the user can easily obtain a single metric.
 
 	import numpy as np
