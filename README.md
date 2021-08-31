@@ -36,16 +36,16 @@ In a virtual environment with Python 3.6+, ppe_match can be installed via pip
 
     from ppe_match import Simulation
 
-	# Initiate the simuation framework with default parameters
+	# Initiate the testing framework with default parameters
     s = Simulation()
 
-    # Run the simulation on the GetUsPPE.org data set
+    # Run the testing procedure
     s.run()
 
-	# Check outputs
+	# Retrieve the decisions made throughout the simulation
 	s.get_decisions() # Pandas dataframe that can be stored
 
-	# Display metrics
+	# Retrieve the performance metrics
 	s.get_metrics() # Pandas dataframe that can be stored
 
 ### Visualize the five summary metrics
