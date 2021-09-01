@@ -77,7 +77,7 @@ By defining a weight for each of the five summary metrics, the user can easily o
 
 ### User-defined matching solution methods
 
-To test a new matching solution method, start by defining a function that takes as input the current date (date, a datetime object), the current donor and recipient requests (Dt and Rt), and the distance matrix between donors and recipients. Dt is a DataFrame with columns (don_id,date,ppe,qty), Rt is a DataFrame with columns (rec_id,date,ppe,qty), M is a DataFrame with columns (don_id,rec_id,distance). The function must return the DataFrame Xt of matching decisions (don_id, rec_id, ppe, qty).
+To test a new matching solution method, start by defining a function that takes as input the current date (date, a datetime object), the current donor and recipient requests (Dt and Rt), and the distance matrix between donors and recipients, M. Dt is a DataFrame with columns (don_id,date,ppe,qty), Rt is a DataFrame with columns (rec_id,date,ppe,qty), M is a DataFrame with columns (don_id,rec_id,distance). The function must return the DataFrame Xt of matching decisions (don_id, rec_id, ppe, qty).
 
 
 For example, a proximity match strategy that matches the ech donor's request with the closest recipient's request is implemented as follows:
