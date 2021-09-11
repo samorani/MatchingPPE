@@ -1,6 +1,6 @@
-from . import simulation
+from . import testing_framework
 from . import strategies
-from .simulation import Simulation
+from .testing_framework import TestingFramework
 
 __all__ = [
     'simulation',
