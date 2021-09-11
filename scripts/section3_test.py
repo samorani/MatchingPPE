@@ -23,7 +23,7 @@ def test_strategy(date,curdon,currec,curdistance_mat):
 # check every day if there is a matching decision to make
 delta = 1
 
-s = pp.Simulation(test_don,test_rec,test_distance,strategy=test_strategy,interval=1)
+s = pp.TestingFramework(test_don,test_rec,test_distance,strategy=test_strategy,interval=1)
 
 # Set debug as True to monitor logs
 s.debug(True)
