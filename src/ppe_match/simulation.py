@@ -1,5 +1,5 @@
-"""Module defining the class responsible for implementing the simulation 
-algorithm for the PPE matching problem.
+"""Module defining the class responsible for implementing the testing framework
+for the PPE matching problem.
 Copyright 2021 M Samorani, R Bala, R Jacob, S He
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 http://www.apache.org/licenses/LICENSE-2.0
@@ -23,8 +23,8 @@ logger.addHandler(stream_hdlr)
 logger.setLevel(logging.INFO)
 
 
-class Simulation:
-	""" Class to run the simulation on a given data set
+class TestingFramework:
+	""" Class to run the testing procedure on a given data set
 	"""
 	def __init__(self,
 				donor_path= 'data/anon_donors.csv',
@@ -33,7 +33,7 @@ class Simulation:
 				strategy=strategies.proximity_match_strategy,
 				interval=7, max_donation_qty=1000,
 				writeFiles=False, output_directory = 'output/'):
-		"""Initialize the simulation. 
+		"""Initialize the framework. 
 
 		:param donor_path: the file name (csv) of the table D of donor requests, defaults to 'data/anon_donors.csv'
 		:type donor_path: str, optional
