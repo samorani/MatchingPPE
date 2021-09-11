@@ -6,7 +6,7 @@
     + [Who needs to solve the PPE matching problem?](#who-needs-to-solve-the-ppe-matching-problem)
     + [What does this software package do?](#what-does-this-software-package-do)
   * [Installation](#installation)
-  * [Simulation Class](#simulation-class)
+  * [TestingFramework Class](#testingframework-class)
     + [Parameters](#parameters)
     + [Methods](#methods)
 
@@ -19,9 +19,9 @@ The PPE Matching Problem consists of optimally matching a set of requests, D, ma
 During health crises like the Covid-19 pandemic, organizations such as GetUsPPE.org provide a platform that aims at connecting prospective donors of PPE to prospective recipients of PPE. Requests by donors and recipients are collected over time. Every _delta_ days, the organization solves the PPE Matching Problem, in order to direct each donor to ship a certain quantity of PPE to a given recipient.
 
 ### What does this software package do?
-Our package provides an open-source simulation framework for researchers interested in developing and testing methodologies to solve the PPE matching problem.
+Our package provides an open-source framework for researchers interested in developing and testing methodologies to solve the PPE matching problem.
 
-The user only needs to implement a function _ppestrategy(D,R,M)_, which solves the PPE matching problem. Our simulation framework evaluates the performance of that user-defined solution method on real-world requests received by GetUsPPE.org in the early months of the Covid-19 pandemic (April-July 2020).
+The user only needs to implement a function _ppestrategy(D,R,M)_, which solves the PPE matching problem. Our testing framework evaluates the performance of that user-defined solution method on real-world requests received by GetUsPPE.org in the early months of the Covid-19 pandemic (April-July 2020).
 
 ## Installation
 In a virtual environment with Python 3.6+, ppe_match can be installed via pip
@@ -30,14 +30,14 @@ In a virtual environment with Python 3.6+, ppe_match can be installed via pip
 
 ### Import the package using
 
-    from ppe_match import Simulation
+    from ppe_match import TestingFramework
 
 ### Test the installation with the code snippet below
 
-    from ppe_match import Simulation
+    from ppe_match import TestingFramework
 
 	# Initiate the testing framework with default parameters
-    s = Simulation()
+    s = TestingFramework()
 
     # Run the testing procedure
     s.run()
@@ -141,13 +141,13 @@ On the other hand, a first-come-first-matched (FCFM) strategy that matches the i
 
 
 
-Once you have implemented your own matching strategy (let us call it _my_strategy_), run a simulation on the GetUsPPE.org data set by passing the function to the Simulation constructor:
+Once you have implemented your own matching strategy (let us call it _my_strategy_), run the test on the GetUsPPE.org data set by passing the function to the TestingFramework constructor:
 
-    s = Simulation(strategy=my_strategy)
+    s = TestingFramework(strategy=my_strategy)
 
 The ppe_match package contains the implementation of two strategies illustrated above: the first-come-first-matched strategy (strategies.FCFM_strategy) and the "proximity matching" strategy tested by Bala et al. (2021) (strategies.proximity_match_strategy).
 
-## Simulation Class
+## TestingFramework Class
 ### Parameters
 #### donor_path
 Path to the data set containing the donors' requests. See expected format in the data folder.
@@ -234,11 +234,11 @@ Sets the directory where the intermediate files and results will be saved
 ### Methods
 
 #### run()
-Executes the strategy function over the data in a date simulation
+Tests a strategy function by simulating the arrival of the requests given in the input data
 
 ---
 #### get_decisions()
-Returns the list of all matching decisions made during the simulation.
+Returns the list of all matching decisions made during the test.
 
 ---
 #### get_metrics()
