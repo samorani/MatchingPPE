@@ -3,6 +3,6 @@ from . import strategies
 from .testing_framework import TestingFramework
 
 __all__ = [
-    'simulation',
+    'testing_framework',
     'strategies'
 ]
