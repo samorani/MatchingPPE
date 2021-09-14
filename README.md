@@ -80,7 +80,11 @@ By defining a weight for each of the five summary metrics, the user can easily o
 To test a new matching solution method, start by defining a function that takes as input the current date (date, a datetime object), the current donor and recipient requests (Dt and Rt), and the distance matrix between donors and recipients, M. Dt is a DataFrame with columns (don_id,date,ppe,qty), Rt is a DataFrame with columns (rec_id,date,ppe,qty), M is a DataFrame with columns (don_id,rec_id,distance). The function must return the DataFrame Xt of matching decisions (don_id, rec_id, ppe, qty).
 
 
+<<<<<<< HEAD
 For example, a proximity match strategy that matches each donor's request with the closest recipient's request is implemented as follows:
+=======
+For example, a proximity match strategy that matches the each donor's request with the closest recipient's request is implemented as follows:
+>>>>>>> aeff7622c10f28a0dd54342461d68048041ffdb2
 
 	import pandas as pd
 	def proximity_match_strategy(date,Dt,Rt,M):
