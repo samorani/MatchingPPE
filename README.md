@@ -36,7 +36,7 @@ In a virtual environment with Python 3.6+, ppe_match can be installed via pip
 
     from ppe_match import TestingFramework
 
-	# Initiate the testing framework with default parameters
+	# Initialize the testing framework with default parameters
     s = TestingFramework()
 
     # Run the testing procedure
