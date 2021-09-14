@@ -1,9 +1,9 @@
 # Data Files
 
-Our  data  set  was  built  by  collecting  and  anonymizing  the  requests  (from  both  donors and  recipients)  received  on  the  GetUsPPE.org  platform  during  the  first  few  months  ofthe Covid-19 pandemic (Apr-July 2020). It includes requests by prospective donors andrecipients interested in respectively donating and receiving certain types of ppes. The data is anonymized to ensure that donors and recipients cannot be identified. The data set and the anonymization procedure are described in the research article.
+Our  data  set  was  built  by  collecting  and  anonymizing  the  requests  (from  both  donors and  recipients)  received  on  the  GetUsPPE.org  platform  during  the  first  few  months  of the Covid-19 pandemic (Apr-July 2020). It includes requests by prospective donors and recipients interested in respectively donating and receiving certain types of PPEs. The data is anonymized to ensure that donors and recipients cannot be identified. The data set and the anonymization procedure are described in the research article.
 
 ## anon_donors.csv:
-This is the anonymized donors' file. Each row represents a request received by GetUsPPE.org made by a donor intereted in donating PPE. The columns are:
+This is the anonymized donors' file. Each row represents a request received by GetUsPPE.org made by a donor interested in donating PPE. The columns are:
 - don_id - Unique ID for Donor *(type:str)*
 - date - Datetime of Request *(type:datetime)*
 - ppe - Type of PPE *(type:str)*
@@ -20,7 +20,7 @@ don157|2020-04-09 13:53:00+00:00|printedFaceShields|3000.0
 don156|2020-04-09 14:24:00+00:00|printedFaceShields|5.0
 
 ## anon_recipients.csv:
-This is the anonymized recipients' file. Each row represents a request received by GetUsPPE.org made by a recipient intereted in receiving PPE. The columns are:
+This is the anonymized recipients' file. Each row represents a request received by GetUsPPE.org made by a recipient interested in receiving PPE. The columns are:
 - rec_id - Unique ID for Donor *(type:str)*
 - date - Datetime of Request *(type:datetime)*
 - ppe - Type of PPE *(type:str)*
