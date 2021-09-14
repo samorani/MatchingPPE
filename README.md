@@ -10,10 +10,10 @@
     + [Parameters](#parameters)
     + [Methods](#methods)
 
- 
+
 ## Overview
 ### What is the PPE matching problem?
-The PPE Matching Problem consists of optimally matching a set of requests, D, made by donors interested in donating Personal Protective Equipment (or PPE, such as masks, gowns, gloves, etc) with a set of requests, R, made by recipients interested in receieving PPE. Requests are characterized by a timestamp (date), a type and quantity of PPE to donate or request, and a donor or recipient id. The input of the problem also includes a matrix M of distances between donors and recipients. The objectives are multiple, and include maximizing the recipients' fill rate, minimizing the total shipping distance, minimizing the holding time of PPE, and minimizing the number of shipments of each donor.   
+The PPE Matching Problem consists of optimally matching a set of requests, D, made by donors interested in donating Personal Protective Equipment (or PPE, such as masks, gowns, gloves, etc) with a set of requests, R, made by recipients interested in receiving PPE. Requests are characterized by a timestamp (date), a type and quantity of PPE to donate or request, and a donor or recipient id. The input of the problem also includes a matrix M of distances between donors and recipients. The objectives are multiple, and include maximizing the recipients' fill rate, minimizing the total shipping distance, minimizing the holding time of PPE, and minimizing the number of shipments of each donor.   
 
 ### Who needs to solve the PPE matching problem?
 During health crises like the Covid-19 pandemic, organizations such as GetUsPPE.org provide a platform that aims at connecting prospective donors of PPE to prospective recipients of PPE. Requests by donors and recipients are collected over time. Every _delta_ days, the organization solves the PPE Matching Problem, in order to direct each donor to ship a certain quantity of PPE to a given recipient.
@@ -80,7 +80,7 @@ By defining a weight for each of the five summary metrics, the user can easily o
 To test a new matching solution method, start by defining a function that takes as input the current date (date, a datetime object), the current donor and recipient requests (Dt and Rt), and the distance matrix between donors and recipients, M. Dt is a DataFrame with columns (don_id,date,ppe,qty), Rt is a DataFrame with columns (rec_id,date,ppe,qty), M is a DataFrame with columns (don_id,rec_id,distance). The function must return the DataFrame Xt of matching decisions (don_id, rec_id, ppe, qty).
 
 
-For example, a proximity match strategy that matches the ech donor's request with the closest recipient's request is implemented as follows:
+For example, a proximity match strategy that matches each donor's request with the closest recipient's request is implemented as follows:
 
 	import pandas as pd
 	def proximity_match_strategy(date,Dt,Rt,M):
@@ -131,11 +131,11 @@ On the other hand, a first-come-first-matched (FCFM) strategy that matches the i
 
             n = min(len(donors_ppe),len(recipients_ppe))
             for i in range(n):
-                don = donors_ppe.iloc[i] 
+                don = donors_ppe.iloc[i]
                 rec = recipients_ppe.iloc[i]
                 qty = min(don.qty,rec.qty)
-                
-                # add 
+
+                # add
                 Xt.loc[len(Xt)] = [don.don_id,rec.rec_id,ppe,qty]
         return Xt
 
