@@ -6,7 +6,10 @@
     + [Who needs to solve the PPE matching problem?](#who-needs-to-solve-the-ppe-matching-problem)
     + [What does this software package do?](#what-does-this-software-package-do)
   * [Installation](#installation)
-  * [TestingFramework Class](#testingframework-class)
+  * [Advanced Use](#advanced-use)
+  	+ [User-defined matching solution methods](#user-defined-matching-solution-methods)
+	+ [Random generation of realistic data sets](#random-generation-of-realistic-data-sets)
+* [TestingFramework Class](#testingframework-class)
     + [Parameters](#parameters)
     + [Methods](#methods)
 
@@ -74,7 +77,7 @@ By defining a weight for each of the five summary metrics, the user can easily o
 	# compute dot product
 	metric_values.dot(weights)
 
-
+## Advanced use
 ### User-defined matching solution methods
 
 To test a new matching solution method, start by defining a function that takes as input the current date (date, a datetime object), the current donor and recipient requests (Dt and Rt), and the distance matrix between donors and recipients, M. Dt is a DataFrame with columns (don_id,date,ppe,qty), Rt is a DataFrame with columns (rec_id,date,ppe,qty), M is a DataFrame with columns (don_id,rec_id,distance). The function must return the DataFrame Xt of matching decisions (don_id, rec_id, ppe, qty).
@@ -147,7 +150,63 @@ Once you have implemented your own matching strategy (let us call it _my_strateg
 
 The ppe_match package contains the implementation of two strategies illustrated above: the first-come-first-matched strategy (strategies.FCFM_strategy) and the "proximity matching" strategy tested by Bala et al. (2021) (strategies.proximity_match_strategy).
 
+### Random generation of realistic data sets
+To properly assess the performance of a matching strategy, it is desirable to run our deterministic simulation procedure multiple times, each time on a different (but realistic) sequence of donor and recipient requests. This can be achived by "bootstrapping", which consists of sampling requests from the original data in random order. Below is a bootstrapping procedure (<i>generate_data_for_bootstrap</i>), which randomly reorder the real requests, while keeping the original timestamps. That is, this procedure reassigns to each request the timestamp of a randomly chosen request.
+
+	import pandas as pd
+	def generate_data_for_bootstrap(donor_path,recipient_path,random_seed_donors,random_seed_recipients):
+		"""function that generates a donor table and a recipient table through resampling
+
+		:param donor_path: the path of the original donor table
+		:type date: str
+		:param recipient_path: the path of the original recipient table
+		:type date: str
+		:param random_seed_donors: random seed for the resampling of donor requests
+		:param random_seed_recipients: random seed for the resampling of recipient requests
+		:return: two DataFrames D2 and R2: the new donor requests and the new recipient requests
+		"""
+		
+		D = pd.read_csv(donor_path,index_col=0)
+		R = pd.read_csv(recipient_path,index_col=0)
+		
+		# donors
+		D = D.reset_index().drop(columns=['index'])
+		date = D.date.copy()
+		D2 = D.sample(frac=1,random_state=random_seed_donors).reset_index().drop(columns=['index'])
+		D2['date'] = date
+		
+		# recipients
+		R = R.reset_index().drop(columns=['index'])
+		date = R.date.copy()
+		R2 = R.sample(frac=1,random_state=random_seed_recipients).reset_index().drop(columns=['index'])
+		R2['date'] = date
+		
+		return D2,R2
+
+The next code shows how to use the function above to run the testing procedure on randomly generated data.
+
+	import os
+	from ppe_match import TestingFramework
+
+	D2,R2 = generate_data_for_bootstrap('anon_donors.csv','anon_recipients.csv',1,10001)
+	D2.to_csv('anon_donors_2.csv')
+	R2.to_csv('anon_recipients_2.csv')
+
+	# Initiate the testing framework with default parameters
+	s = TestingFramework(donor_path = os.path.join(os.getcwd(),'anon_donors_2.csv'),recipient_path=os.path.join(os.getcwd(),'anon_recipients_2.csv'))
+
+	# Run the testing procedure
+	s.run()
+
+	# Retrieve the decisions made throughout the simulation
+	s.get_decisions() # Pandas dataframe that can be stored
+
+	# Retrieve the performance metrics
+	s.get_metrics() # Pandas dataframe that can be stored
+
+
 ## TestingFramework Class
+
 ### Parameters
 #### donor_path
 Path to the data set containing the donors' requests. See expected format in the data folder.
